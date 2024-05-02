@@ -1,19 +1,43 @@
 ---
-title: "R Notebook"
+title: "# Bank Marketing Data - A Decision Tree Approach"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+Reference link to kaggle https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach
 
 ```{r}
-plot(cars)
+
 ```
 
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+## Context
+As part of Reproducible Research course which is Mandatory course for 2nd year students of Data Science and Business Analytics, we are reproducing already existing project. 
 
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+Link to the project:
+https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach
 
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+The aim of this attempt is to 
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+install.packages("remotes")
+library(remotes)
+
+packages_version <- c(
+  "readr" = "2.1.4", 
+  "dplyr" = "1.1.2", 
+  "ggplot2" = "3.4.2", 
+)
+
+check_and_install <- function(package, version) {
+  if (!require(package, character.only = TRUE)) {
+    package_version_install <- paste0(package, "@", version)
+    remotes::install_version(package_version_install)
+  }
+}
+
+mapply(check_and_install, names(packages_version), packages_version)
+
+
+
+```
+
 
