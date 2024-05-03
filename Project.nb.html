@@ -10,8 +10,9 @@
 
 
 
+<meta name="date" content="2024-05-03" />
 
-<title># Bank Marketing Data - A Decision Tree Approach</title>
+<title>Bank Marketing Data - A Decision Tree Approach</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1511,7 +1512,7 @@ window.initializeCodeFolding = function(show) {
     $(this).detach().appendTo(div);
 
     // add a show code button right above
-    var showCodeText = $('<span>' + (showThis ? 'Hide' : 'Code') + '</span>');
+    var showCodeText = $('<span>' + (showThis ? 'Hide' : 'Show') + '</span>');
     var showCodeButton = $('<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right"></button>');
     showCodeButton.append(showCodeText);
     showCodeButton
@@ -1537,7 +1538,7 @@ window.initializeCodeFolding = function(show) {
     //   * Change text
     //   * add a class for intermediate states styling
     div.on('hide.bs.collapse', function () {
-      showCodeText.text('Code');
+      showCodeText.text('Show');
       showCodeButton.addClass('btn-collapsing');
     });
     div.on('hidden.bs.collapse', function () {
@@ -1746,8 +1747,9 @@ display: none;
 
 
 
-<h1 class="title toc-ignore"># Bank Marketing Data - A Decision Tree
+<h1 class="title toc-ignore">Bank Marketing Data - A Decision Tree
 Approach</h1>
+<h4 class="date">2024-05-03</h4>
 
 </div>
 
@@ -1769,10 +1771,90 @@ reproducing already existing project.</p>
 <!-- rnb-chunk-begin -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+</div>
+<div id="loading-necessary-libraries" class="section level2">
+<h2>Loading Necessary Libraries</h2>
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBpbnN0YWxsLnBhY2thZ2VzKCdjYXJldCcpXG4jIGluc3RhbGwucGFja2FnZXMoJ3JwYXJ0LnBsb3QnKVxuXG5saWJyYXJ5KHRpZHl2ZXJzZSkgICAgICAgXG5saWJyYXJ5KGdyaWRFeHRyYSkgICAgICAgXG5saWJyYXJ5KGNsdXN0ZXIpICAgICAgICAgXG5saWJyYXJ5KGNhcmV0KSAgICAgICAgICAgXG5saWJyYXJ5KHJwYXJ0KSAgICAgICAgICAgXG5saWJyYXJ5KHJwYXJ0LnBsb3QpICAgICAgXG5saWJyYXJ5KE1vZGVsTWV0cmljcykgXG5gYGAifQ== -->
+<pre class="r"><code># install.packages(&#39;caret&#39;)
+# install.packages(&#39;rpart.plot&#39;)
+
+library(tidyverse)       
+library(gridExtra)       
+library(cluster)         
+library(caret)           
+library(rpart)           
+library(rpart.plot)      
+library(ModelMetrics) </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="reading-and-initial-analysis-of-banking-dataset" class="section level2">
+<h2>Reading and Initial Analysis of Banking Dataset</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyByZWFkaW5nIGZpbGVcbmZpbGVfcGF0aCA8LSBcIkM6L1VzZXJzL1BDL09uZURyaXZlL0Rlc2t0b3AvZmFsY29ueS9SUnByb2plY3QyMDI0L1JScHJvamVjdC9iYW5rLmNzdlwiXG5cbmJhbmsgPC0gcmVhZC5jc3YoZmlsZV9wYXRoKVxuXG4jIGluaXRpYWwgYW5hbHlzaXNcbmhlYWQoYmFuaylcbmBgYCJ9 -->
+<pre class="r"><code># reading file
+file_path &lt;- &quot;C:/Users/PC/OneDrive/Desktop/falcony/RRproject2024/RRproject/bank.csv&quot;
+
+bank &lt;- read.csv(file_path)
+
+# initial analysis
+head(bank)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-frame-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImRhdGEuZnJhbWUiXSwibnJvdyI6NiwibmNvbCI6MTcsInN1bW1hcnkiOnsiRGVzY3JpcHRpb24iOlsiZGYgWzYgw5cgMTddIl19fSwicmRmIjoiSDRzSUFBQUFBQUFBQnJWVXpXNFRNUkIyOXpkWnFVRG9ReUNRc2djUVB4SkhVQitnQXFuWGllMG1oclc5OG5wYmN1TlZ1UGNCa0hndmppMnp5ZHB4VnRrRG9WajY1Sm14eC9Qdmk0K1hyNHJMZ2hBU2t5U09TSndpU2RMUG44N243d2hKSW1ST1NFS20zZjROTDUwaE1VT2NJakxFZXdSZUpNOFJieEZ2RUM4UVR6Ym5XOFVNbUJTcVBNZ1ZsdE9WRWxTQTZpV1RocHRyUVhseitMNEVCVXN1dWJJREs3a0VZd1JuRDhCbWpWRExpZzhNVEJ0T3RXSmcxc2NMSnBZYkt3N3grN1lpcFkrZ2ZGbW16M0NmWS8xK0kzMkw5RSt5WGFHTmVPMXp2SHNtRUk2Zi82dXZCeDdKVy9WVjZSdjFrT3l1UzlNUjdLVkR3dnBZMGx0S251TER2eEFTNC8yQStJRjRHWGh5TWtEVVkzTitQN0lDL2JIMS8zTTUwanAvVGU1L0txa0M2WnRoNXU3aGhEdnlpMTRFUXlvc1ZHNjJPR3NwV0tHOXI0eGZRVnRaeHk2Z0FrWGRRL2xLdDkxWTkyeFNhZi9qNURpakZxaFRqSmt2YmlyeFpPVm1sYlVtdERlaElHc1FTOGVuTlNxNlVDZTE0ZGNDVFhwZXQ1WnF5WGZPMXJvUmRwQ09xZEUzcFV0SlYvUG8rN2ErMlRCdnRJTEc1YzBKQ3dZV3lpdUQrc2pkRFZSeVhYZmVvMUowRnZTLy85N05RUEM0VlowbmJFNVgyQVh6MTUyQm9ITlArejBMNk5uV1pIVGZQNVc2RDVXcnBWQXU5clNDQlhkbGZJUVJid0l1YXlPVXEwR0IwcWEwZWxmdWd1cktTVGF4a2JzL2ZuVlB3THdHQUFBPSJ9 -->
+<div data-pagedtable="false">
+<script data-pagedtable-source type="application/json">
+{"columns":[{"label":[""],"name":["_rn_"],"type":[""],"align":["left"]},{"label":["age"],"name":[1],"type":["int"],"align":["right"]},{"label":["job"],"name":[2],"type":["chr"],"align":["left"]},{"label":["marital"],"name":[3],"type":["chr"],"align":["left"]},{"label":["education"],"name":[4],"type":["chr"],"align":["left"]},{"label":["default"],"name":[5],"type":["chr"],"align":["left"]},{"label":["balance"],"name":[6],"type":["int"],"align":["right"]},{"label":["housing"],"name":[7],"type":["chr"],"align":["left"]},{"label":["loan"],"name":[8],"type":["chr"],"align":["left"]},{"label":["contact"],"name":[9],"type":["chr"],"align":["left"]},{"label":["day"],"name":[10],"type":["int"],"align":["right"]},{"label":["month"],"name":[11],"type":["chr"],"align":["left"]},{"label":["duration"],"name":[12],"type":["int"],"align":["right"]},{"label":["campaign"],"name":[13],"type":["int"],"align":["right"]},{"label":["pdays"],"name":[14],"type":["int"],"align":["right"]},{"label":["previous"],"name":[15],"type":["int"],"align":["right"]},{"label":["poutcome"],"name":[16],"type":["chr"],"align":["left"]},{"label":["deposit"],"name":[17],"type":["chr"],"align":["left"]}],"data":[{"1":"59","2":"admin.","3":"married","4":"secondary","5":"no","6":"2343","7":"yes","8":"no","9":"unknown","10":"5","11":"may","12":"1042","13":"1","14":"-1","15":"0","16":"unknown","17":"yes","_rn_":"1"},{"1":"56","2":"admin.","3":"married","4":"secondary","5":"no","6":"45","7":"no","8":"no","9":"unknown","10":"5","11":"may","12":"1467","13":"1","14":"-1","15":"0","16":"unknown","17":"yes","_rn_":"2"},{"1":"41","2":"technician","3":"married","4":"secondary","5":"no","6":"1270","7":"yes","8":"no","9":"unknown","10":"5","11":"may","12":"1389","13":"1","14":"-1","15":"0","16":"unknown","17":"yes","_rn_":"3"},{"1":"55","2":"services","3":"married","4":"secondary","5":"no","6":"2476","7":"yes","8":"no","9":"unknown","10":"5","11":"may","12":"579","13":"1","14":"-1","15":"0","16":"unknown","17":"yes","_rn_":"4"},{"1":"54","2":"admin.","3":"married","4":"tertiary","5":"no","6":"184","7":"no","8":"no","9":"unknown","10":"5","11":"may","12":"673","13":"2","14":"-1","15":"0","16":"unknown","17":"yes","_rn_":"5"},{"1":"42","2":"management","3":"single","4":"tertiary","5":"no","6":"0","7":"yes","8":"yes","9":"unknown","10":"5","11":"may","12":"562","13":"2","14":"-1","15":"0","16":"unknown","17":"yes","_rn_":"6"}],"options":{"columns":{"min":{},"max":[10],"total":[17]},"rows":{"min":[10],"max":[10],"total":[6]},"pages":{}}}
+  </script>
+</div>
+<!-- rnb-frame-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5zdW0oaXMubmEoYmFuaykpXG5gYGAifQ== -->
+<pre class="r"><code>
+sum(is.na(bank))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDBcbiJ9 -->
+<pre><code>[1] 0</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShiYW5rKVxuYGBgIn0= -->
+<pre class="r"><code>summary(bank)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgYWdlICAgICAgICAgICAgam9iICAgICAgICAgICAgICBtYXJpdGFsICAgICAgICAgICBlZHVjYXRpb24gICAgICAgICAgIGRlZmF1bHQgICAgICAgICBcbiBNaW4uICAgOjE4LjAwICAgTGVuZ3RoOjExMTYyICAgICAgIExlbmd0aDoxMTE2MiAgICAgICBMZW5ndGg6MTExNjIgICAgICAgTGVuZ3RoOjExMTYyICAgICAgXG4gMXN0IFF1LjozMi4wMCAgIENsYXNzIDpjaGFyYWN0ZXIgICBDbGFzcyA6Y2hhcmFjdGVyICAgQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1lZGlhbiA6MzkuMDAgICBNb2RlICA6Y2hhcmFjdGVyICAgTW9kZSAgOmNoYXJhY3RlciAgIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICBcbiBNZWFuICAgOjQxLjIzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gM3JkIFF1Ljo0OS4wMCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuIE1heC4gICA6OTUuMDAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgICBiYWxhbmNlICAgICAgICBob3VzaW5nICAgICAgICAgICAgICBsb2FuICAgICAgICAgICAgIGNvbnRhY3QgICAgICAgICAgICAgICBkYXkgICAgICAgXG4gTWluLiAgIDotNjg0NyAgIExlbmd0aDoxMTE2MiAgICAgICBMZW5ndGg6MTExNjIgICAgICAgTGVuZ3RoOjExMTYyICAgICAgIE1pbi4gICA6IDEuMDAgIFxuIDFzdCBRdS46ICAxMjIgICBDbGFzcyA6Y2hhcmFjdGVyICAgQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgICAxc3QgUXUuOiA4LjAwICBcbiBNZWRpYW4gOiAgNTUwICAgTW9kZSAgOmNoYXJhY3RlciAgIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICAgTWVkaWFuIDoxNS4wMCAgXG4gTWVhbiAgIDogMTUyOSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE1lYW4gICA6MTUuNjYgIFxuIDNyZCBRdS46IDE3MDggICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAzcmQgUXUuOjIyLjAwICBcbiBNYXguICAgOjgxMjA0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTWF4LiAgIDozMS4wMCAgXG4gICAgbW9udGggICAgICAgICAgICAgIGR1cmF0aW9uICAgICAgIGNhbXBhaWduICAgICAgICAgIHBkYXlzICAgICAgICAgICBwcmV2aW91cyAgICAgIFxuIExlbmd0aDoxMTE2MiAgICAgICBNaW4uICAgOiAgIDIgICBNaW4uICAgOiAxLjAwMCAgIE1pbi4gICA6IC0xLjAwICAgTWluLiAgIDogMC4wMDAwICBcbiBDbGFzcyA6Y2hhcmFjdGVyICAgMXN0IFF1LjogMTM4ICAgMXN0IFF1LjogMS4wMDAgICAxc3QgUXUuOiAtMS4wMCAgIDFzdCBRdS46IDAuMDAwMCAgXG4gTW9kZSAgOmNoYXJhY3RlciAgIE1lZGlhbiA6IDI1NSAgIE1lZGlhbiA6IDIuMDAwICAgTWVkaWFuIDogLTEuMDAgICBNZWRpYW4gOiAwLjAwMDAgIFxuICAgICAgICAgICAgICAgICAgICBNZWFuICAgOiAzNzIgICBNZWFuICAgOiAyLjUwOCAgIE1lYW4gICA6IDUxLjMzICAgTWVhbiAgIDogMC44MzI2ICBcbiAgICAgICAgICAgICAgICAgICAgM3JkIFF1LjogNDk2ICAgM3JkIFF1LjogMy4wMDAgICAzcmQgUXUuOiAyMC43NSAgIDNyZCBRdS46IDEuMDAwMCAgXG4gICAgICAgICAgICAgICAgICAgIE1heC4gICA6Mzg4MSAgIE1heC4gICA6NjMuMDAwICAgTWF4LiAgIDo4NTQuMDAgICBNYXguICAgOjU4LjAwMDAgIFxuICAgcG91dGNvbWUgICAgICAgICAgIGRlcG9zaXQgICAgICAgICBcbiBMZW5ndGg6MTExNjIgICAgICAgTGVuZ3RoOjExMTYyICAgICAgXG4gQ2xhc3MgOmNoYXJhY3RlciAgIENsYXNzIDpjaGFyYWN0ZXIgIFxuIE1vZGUgIDpjaGFyYWN0ZXIgICBNb2RlICA6Y2hhcmFjdGVyICBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiJ9 -->
+<pre><code>      age            job              marital           education           default         
+ Min.   :18.00   Length:11162       Length:11162       Length:11162       Length:11162      
+ 1st Qu.:32.00   Class :character   Class :character   Class :character   Class :character  
+ Median :39.00   Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+ Mean   :41.23                                                                              
+ 3rd Qu.:49.00                                                                              
+ Max.   :95.00                                                                              
+    balance        housing              loan             contact               day       
+ Min.   :-6847   Length:11162       Length:11162       Length:11162       Min.   : 1.00  
+ 1st Qu.:  122   Class :character   Class :character   Class :character   1st Qu.: 8.00  
+ Median :  550   Mode  :character   Mode  :character   Mode  :character   Median :15.00  
+ Mean   : 1529                                                            Mean   :15.66  
+ 3rd Qu.: 1708                                                            3rd Qu.:22.00  
+ Max.   :81204                                                            Max.   :31.00  
+    month              duration       campaign          pdays           previous      
+ Length:11162       Min.   :   2   Min.   : 1.000   Min.   : -1.00   Min.   : 0.0000  
+ Class :character   1st Qu.: 138   1st Qu.: 1.000   1st Qu.: -1.00   1st Qu.: 0.0000  
+ Mode  :character   Median : 255   Median : 2.000   Median : -1.00   Median : 0.0000  
+                    Mean   : 372   Mean   : 2.508   Mean   : 51.33   Mean   : 0.8326  
+                    3rd Qu.: 496   3rd Qu.: 3.000   3rd Qu.: 20.75   3rd Qu.: 1.0000  
+                    Max.   :3881   Max.   :63.000   Max.   :854.00   Max.   :58.0000  
+   poutcome           deposit         
+ Length:11162       Length:11162      
+ Class :character   Class :character  
+ Mode  :character   Mode  :character  
+                                      
+                                      
+                                      </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiIyBCYW5rIE1hcmtldGluZyBEYXRhIC0gQSBEZWNpc2lvbiBUcmVlIEFwcHJvYWNoIgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKLS0tCgpSZWZlcmVuY2UgbGluayB0byBrYWdnbGUgaHR0cHM6Ly93d3cua2FnZ2xlLmNvbS9jb2RlL3NoaXJhbnRoYS9iYW5rLW1hcmtldGluZy1kYXRhLWEtZGVjaXNpb24tdHJlZS1hcHByb2FjaAoKYGBge3J9CgpgYGAKCiMjIENvbnRleHQKQXMgcGFydCBvZiBSZXByb2R1Y2libGUgUmVzZWFyY2ggY291cnNlIHdoaWNoIGlzIE1hbmRhdG9yeSBjb3Vyc2UgZm9yIDJuZCB5ZWFyIHN0dWRlbnRzIG9mIERhdGEgU2NpZW5jZSBhbmQgQnVzaW5lc3MgQW5hbHl0aWNzLCB3ZSBhcmUgcmVwcm9kdWNpbmcgYWxyZWFkeSBleGlzdGluZyBwcm9qZWN0LiAKCkxpbmsgdG8gdGhlIHByb2plY3Q6Cmh0dHBzOi8vd3d3LmthZ2dsZS5jb20vY29kZS9zaGlyYW50aGEvYmFuay1tYXJrZXRpbmctZGF0YS1hLWRlY2lzaW9uLXRyZWUtYXBwcm9hY2gKClRoZSBhaW0gb2YgdGhpcyBhdHRlbXB0IGlzIHRvIAoKYGBge3IsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UsIGVjaG89RkFMU0V9Cmluc3RhbGwucGFja2FnZXMoInJlbW90ZXMiKQpsaWJyYXJ5KHJlbW90ZXMpCgpwYWNrYWdlc192ZXJzaW9uIDwtIGMoCiAgInJlYWRyIiA9ICIyLjEuNCIsIAogICJkcGx5ciIgPSAiMS4xLjIiLCAKICAiZ2dwbG90MiIgPSAiMy40LjIiLCAKKQoKY2hlY2tfYW5kX2luc3RhbGwgPC0gZnVuY3Rpb24ocGFja2FnZSwgdmVyc2lvbikgewogIGlmICghcmVxdWlyZShwYWNrYWdlLCBjaGFyYWN0ZXIub25seSA9IFRSVUUpKSB7CiAgICBwYWNrYWdlX3ZlcnNpb25faW5zdGFsbCA8LSBwYXN0ZTAocGFja2FnZSwgIkAiLCB2ZXJzaW9uKQogICAgcmVtb3Rlczo6aW5zdGFsbF92ZXJzaW9uKHBhY2thZ2VfdmVyc2lvbl9pbnN0YWxsKQogIH0KfQoKbWFwcGx5KGNoZWNrX2FuZF9pbnN0YWxsLCBuYW1lcyhwYWNrYWdlc192ZXJzaW9uKSwgcGFja2FnZXNfdmVyc2lvbikKCgoKYGBgCgoK</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkJhbmsgTWFya2V0aW5nIERhdGEgLSBBIERlY2lzaW9uIFRyZWUgQXBwcm9hY2giDQphdXRob3JzOiBUYXJsYW4gQWdoYXlldiwgV29qY2llY2ggTWlzaXVyYQ0KZGF0ZTogIjIwMjQtMDUtMDMiDQpvdXRwdXQ6DQogIGh0bWxfbm90ZWJvb2s6IGRlZmF1bHQNCiAgaHRtbF9kb2N1bWVudDogZGVmYXVsdA0KLS0tDQoNCg0KUmVmZXJlbmNlIGxpbmsgdG8ga2FnZ2xlIGh0dHBzOi8vd3d3LmthZ2dsZS5jb20vY29kZS9zaGlyYW50aGEvYmFuay1tYXJrZXRpbmctZGF0YS1hLWRlY2lzaW9uLXRyZWUtYXBwcm9hY2gNCg0KYGBge3J9DQoNCmBgYA0KDQojIyBDb250ZXh0DQpBcyBwYXJ0IG9mIFJlcHJvZHVjaWJsZSBSZXNlYXJjaCBjb3Vyc2Ugd2hpY2ggaXMgTWFuZGF0b3J5IGNvdXJzZSBmb3IgMm5kIHllYXIgc3R1ZGVudHMgb2YgRGF0YSBTY2llbmNlIGFuZCBCdXNpbmVzcyBBbmFseXRpY3MsIHdlIGFyZSByZXByb2R1Y2luZyBhbHJlYWR5IGV4aXN0aW5nIHByb2plY3QuIA0KDQpMaW5rIHRvIHRoZSBwcm9qZWN0Og0KaHR0cHM6Ly93d3cua2FnZ2xlLmNvbS9jb2RlL3NoaXJhbnRoYS9iYW5rLW1hcmtldGluZy1kYXRhLWEtZGVjaXNpb24tdHJlZS1hcHByb2FjaA0KDQpUaGUgYWltIG9mIHRoaXMgYXR0ZW1wdCBpcyB0byANCg0KYGBge3IsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0UsIGVjaG89RkFMU0V9DQojaW5zdGFsbC5wYWNrYWdlcygicmVtb3RlcyIpDQojbGlicmFyeShyZW1vdGVzKQ0KDQojcGFja2FnZXNfdmVyc2lvbiA8LSBjKA0KIyAgInJlYWRyIiA9ICIyLjEuNCIsIA0KIyAgImRwbHlyIiA9ICIxLjEuMiIsIA0KIyAgImdncGxvdDIiID0gIjMuNC4yIiwgDQojKQ0KDQojY2hlY2tfYW5kX2luc3RhbGwgPC0gZnVuY3Rpb24ocGFja2FnZSwgdmVyc2lvbikgew0KIyAgaWYgKCFyZXF1aXJlKHBhY2thZ2UsIGNoYXJhY3Rlci5vbmx5ID0gVFJVRSkpIHsNCiMgICAgcGFja2FnZV92ZXJzaW9uX2luc3RhbGwgPC0gcGFzdGUwKHBhY2thZ2UsICJAIiwgdmVyc2lvbikNCiMgICAgcmVtb3Rlczo6aW5zdGFsbF92ZXJzaW9uKHBhY2thZ2VfdmVyc2lvbl9pbnN0YWxsKQ0KIyAgfQ0KI30NCg0KI21hcHBseShjaGVja19hbmRfaW5zdGFsbCwgbmFtZXMocGFja2FnZXNfdmVyc2lvbiksIHBhY2thZ2VzX3ZlcnNpb24pDQoNCg0KDQpgYGANCg0KDQojIyBMb2FkaW5nIE5lY2Vzc2FyeSBMaWJyYXJpZXMNCg0KYGBge3Igc2V0dXAsIHdhcm5pbmc9RkFMU0UsIG1lc3NhZ2U9RkFMU0V9DQojIGluc3RhbGwucGFja2FnZXMoJ2NhcmV0JykNCiMgaW5zdGFsbC5wYWNrYWdlcygncnBhcnQucGxvdCcpDQoNCmxpYnJhcnkodGlkeXZlcnNlKSAgICAgICANCmxpYnJhcnkoZ3JpZEV4dHJhKSAgICAgICANCmxpYnJhcnkoY2x1c3RlcikgICAgICAgICANCmxpYnJhcnkoY2FyZXQpICAgICAgICAgICANCmxpYnJhcnkocnBhcnQpICAgICAgICAgICANCmxpYnJhcnkocnBhcnQucGxvdCkgICAgICANCmxpYnJhcnkoTW9kZWxNZXRyaWNzKSANCmBgYA0KDQojIyBSZWFkaW5nIGFuZCBJbml0aWFsIEFuYWx5c2lzIG9mIEJhbmtpbmcgRGF0YXNldA0KDQoNCmBgYHtyfQ0KIyByZWFkaW5nIGZpbGUNCmZpbGVfcGF0aCA8LSAiQzovVXNlcnMvUEMvT25lRHJpdmUvRGVza3RvcC9mYWxjb255L1JScHJvamVjdDIwMjQvUlJwcm9qZWN0L2JhbmsuY3N2Ig0KDQpiYW5rIDwtIHJlYWQuY3N2KGZpbGVfcGF0aCkNCg0KIyBpbml0aWFsIGFuYWx5c2lzDQpoZWFkKGJhbmspDQoNCnN1bShpcy5uYShiYW5rKSkNCg0Kc3VtbWFyeShiYW5rKQ0KYGBgDQo=</div>
 
 
 
