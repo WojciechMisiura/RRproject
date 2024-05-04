@@ -7,20 +7,19 @@ output:
   html_document: default
 ---
 
-
-Reference link to kaggle https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach
+Reference link to kaggle <https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach>
 
 ```{r}
 
 ```
 
 ## Context
-As part of Reproducible Research course which is Mandatory course for 2nd year students of Data Science and Business Analytics, we are reproducing already existing project. 
 
-Link to the project:
-https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach
+As part of Reproducible Research course which is Mandatory course for 2nd year students of Data Science and Business Analytics, we are reproducing already existing project.
 
-The aim of this attempt is to 
+Link to the project: <https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach>
+
+The aim of this attempt is to
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 #install.packages("remotes")
@@ -45,7 +44,6 @@ The aim of this attempt is to
 
 ```
 
-
 ## Loading Necessary Libraries
 
 ```{r setup, warning=FALSE, message=FALSE}
@@ -63,7 +61,6 @@ library(ModelMetrics)
 
 ## Reading and Initial Analysis of Banking Dataset
 
-
 ```{r}
 # reading file
 file_path <- "C:/Users/PC/OneDrive/Desktop/falcony/RRproject2024/RRproject/bank.csv"
@@ -78,8 +75,8 @@ sum(is.na(bank))
 summary(bank)
 ```
 
+## Explatory Data Analysis
 
-## Explatory Data Analysis 
 ```{r}
 # Create a boxplot for 'age'
 g_age <- ggplot(bank, aes(x = factor(0), y = age)) + 
@@ -106,5 +103,35 @@ g_duration_dist <- ggplot(bank, aes(x = duration)) +
   geom_histogram(bins = 100, fill = "red", color = "black") +
   ggtitle("Distribution of Duration")
 g_duration_dist
+
+```
+
+## Convertion of Categorical Data
+
+```{r}
+# Copy data for processing
+bank_data <- bank
+
+# Count of people who made a deposit by job category
+jobs <- c('management', 'blue-collar', 'technician', 'admin.', 'services',
+          'retired', 'self-employed', 'student', 'unemployed', 'entrepreneur',
+          'housemaid', 'unknown')
+
+for (j in jobs) {
+  count <- sum(bank_data$deposit == "yes" & bank_data$job == j)
+  cat(sprintf("%15s : %5d\n", j, count))
+}
+
+# Different types of job categories and their counts
+table(bank_data$job)
+
+# Similar jobs into categories
+bank_data$job <- as.factor(bank_data$job)
+levels(bank_data$job)[levels(bank_data$job) %in% c('management', 'admin.')] <- 'white-collar'
+levels(bank_data$job)[levels(bank_data$job) %in% c('services', 'housemaid')] <- 'pink-collar'
+levels(bank_data$job)[levels(bank_data$job) %in% c('retired', 'student', 'unemployed', 'unknown')] <- 'other'
+
+# New value counts for job categories
+table(bank_data$job)
 
 ```
