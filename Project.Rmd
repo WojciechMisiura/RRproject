@@ -106,7 +106,7 @@ g_duration_dist
 
 ```
 
-## Convertion of Categorical Data
+## Convert Categorical Data
 
 ```{r}
 # Copy data for processing
