@@ -1,26 +1,31 @@
 ---
-title: "# Bank Marketing Data - A Decision Tree Approach"
-output: html_notebook
+title: "Bank Marketing Data - A Decision Tree Approach"
+authors: Tarlan Aghayev, Wojciech Misiura
+date: "2024-05-03"
+output:
+  html_notebook: default
+  html_document: default
 ---
 
-Reference link to kaggle https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach
+Reference link to kaggle <https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach>
 
 ```{r}
 
 ```
 
 ## Context
-As part of Reproducible Research course which is Mandatory course for 2nd year students of Data Science and Business Analytics, we are reproducing already existing project. 
 
-Link to the project:
-https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach
+As part of Reproducible Research course which is Mandatory course for 2nd year students of Data Science and Business Analytics, we are reproducing already existing project.
 
-The aim of this attempt is to 
+Link to the project: <https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach>
+
+The aim of this attempt is to
 
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
-install.packages("remotes")
-library(remotes)
+#install.packages("remotes")
+#library(remotes)
 
+<<<<<<< HEAD
 packages_version <- c(
   "readr" = "2.1.4", 
   "dplyr" = "1.1.2", 
@@ -34,16 +39,27 @@ packages_version <- c(
   "RColorBrewer" = "1.1.3",
   "tibble" = "3.2.1"
 )
+=======
+#packages_version <- c(
+#  "readr" = "2.1.4", 
+#  "dplyr" = "1.1.2", 
+#  "ggplot2" = "3.4.2", 
+#)
+>>>>>>> dbe50508f6d28778d5c49fd003ce381ed04d74ed
 
-check_and_install <- function(package, version) {
-  if (!require(package, character.only = TRUE)) {
-    package_version_install <- paste0(package, "@", version)
-    remotes::install_version(package_version_install)
-  }
-}
+#check_and_install <- function(package, version) {
+#  if (!require(package, character.only = TRUE)) {
+#    package_version_install <- paste0(package, "@", version)
+#    remotes::install_version(package_version_install)
+#  }
+#}
 
+<<<<<<< HEAD
 mapply(check_and_install, names(packages_version), packages_version)
 ```
+=======
+#mapply(check_and_install, names(packages_version), packages_version)
+>>>>>>> dbe50508f6d28778d5c49fd003ce381ed04d74ed
 
 ```{r}
 url<-"https://raw.githubusercontent.com/WojciechMisiura/RRproject/main/bank.csv" 
@@ -56,6 +72,7 @@ bank %>% summarize(across(everything(), ~sum(is.na(.))))
 
 ```
 
+<<<<<<< HEAD
 ```{r}
 summary(bank)
 ```
@@ -100,10 +117,84 @@ bank_data <- bank
 ```{r}
 jobs <- c('management', 'blue-collar', 'technician', 'admin.', 'services', 
           'retired', 'self-employed', 'student', 'unemployed', 'entrepreneur', 
+=======
+## Loading Necessary Libraries
+
+```{r setup, warning=FALSE, message=FALSE}
+# install.packages('caret')
+# install.packages('rpart.plot')
+
+library(tidyverse)       
+library(gridExtra)       
+library(cluster)         
+library(caret)           
+library(rpart)           
+library(rpart.plot)      
+library(ModelMetrics) 
+```
+
+## Reading and Initial Analysis of Banking Dataset
+
+```{r}
+# reading file
+file_path <- "C:/Users/PC/OneDrive/Desktop/falcony/RRproject2024/RRproject/bank.csv"
+
+bank <- read.csv(file_path)
+
+# initial analysis
+head(bank)
+
+sum(is.na(bank))
+
+summary(bank)
+```
+
+## Explatory Data Analysis
+
+```{r}
+# Create a boxplot for 'age'
+g_age <- ggplot(bank, aes(x = factor(0), y = age)) + 
+  geom_boxplot() +
+  labs(x = NULL, y = "Age") +
+  theme(axis.title.x = element_blank())
+g_age
+
+# Create a distribution plot for 'age'
+g_age_dist <- ggplot(bank, aes(x = age)) + 
+  geom_histogram(bins = 100, fill = "blue", color = "black") +
+  ggtitle("Distribution of Age")
+g_age_dist
+
+# Create a boxplot for 'duration'
+g_duration <- ggplot(bank, aes(x = factor(0), y = duration)) + 
+  geom_boxplot() +
+  labs(x = NULL, y = "Duration") +
+  theme(axis.title.x = element_blank())
+g_duration
+
+# Create a distribution plot for 'duration'
+g_duration_dist <- ggplot(bank, aes(x = duration)) + 
+  geom_histogram(bins = 100, fill = "red", color = "black") +
+  ggtitle("Distribution of Duration")
+g_duration_dist
+
+```
+
+## Convert Categorical Data
+
+```{r}
+# Copy data for processing
+bank_data <- bank
+
+# Count of people who made a deposit by job category
+jobs <- c('management', 'blue-collar', 'technician', 'admin.', 'services',
+          'retired', 'self-employed', 'student', 'unemployed', 'entrepreneur',
+>>>>>>> dbe50508f6d28778d5c49fd003ce381ed04d74ed
           'housemaid', 'unknown')
 
 for (j in jobs) {
   count <- sum(bank_data$deposit == "yes" & bank_data$job == j)
+<<<<<<< HEAD
   cat(sprintf("%-15s : %5d\n", j, count))}
 ```
 
@@ -404,3 +495,21 @@ cat(sprintf("\nArea Under Curve: \n%f\n", auc$auc))
 ```{r}
 
 ```
+=======
+  cat(sprintf("%15s : %5d\n", j, count))
+}
+
+# Different types of job categories and their counts
+table(bank_data$job)
+
+# Similar jobs into categories
+bank_data$job <- as.factor(bank_data$job)
+levels(bank_data$job)[levels(bank_data$job) %in% c('management', 'admin.')] <- 'white-collar'
+levels(bank_data$job)[levels(bank_data$job) %in% c('services', 'housemaid')] <- 'pink-collar'
+levels(bank_data$job)[levels(bank_data$job) %in% c('retired', 'student', 'unemployed', 'unknown')] <- 'other'
+
+# New value counts for job categories
+table(bank_data$job)
+
+```
+>>>>>>> dbe50508f6d28778d5c49fd003ce381ed04d74ed
