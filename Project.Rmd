@@ -26,7 +26,6 @@ The aim of this attempt is to
 #install.packages("remotes")
 #library(remotes)
 
-<<<<<<< HEAD
 packages_version <- c(
   "readr" = "2.1.4", 
   "dplyr" = "1.1.2", 
@@ -38,29 +37,20 @@ packages_version <- c(
   "pROC" = "1.18.5",
   "corrplot" = "0.92",
   "RColorBrewer" = "1.1.3",
-  "tibble" = "3.2.1"
-)
-=======
-#packages_version <- c(
-#  "readr" = "2.1.4", 
-#  "dplyr" = "1.1.2", 
-#  "ggplot2" = "3.4.2", 
-#)
->>>>>>> dbe50508f6d28778d5c49fd003ce381ed04d74ed
+  "tibble" = "3.2.1")
 
-#check_and_install <- function(package, version) {
-#  if (!require(package, character.only = TRUE)) {
-#    package_version_install <- paste0(package, "@", version)
-#    remotes::install_version(package_version_install)
-#  }
-#}
+check_and_install <- function(package, version) {
+  if (!require(package, character.only = TRUE)) {
+    package_version_install <- paste0(package, "@", version)
+    remotes::install_version(package_version_install)
+  }
+}
 
-<<<<<<< HEAD
+
 mapply(check_and_install, names(packages_version), packages_version)
 ```
-=======
-#mapply(check_and_install, names(packages_version), packages_version)
->>>>>>> dbe50508f6d28778d5c49fd003ce381ed04d74ed
+
+
 
 ```{r}
 url<-"https://raw.githubusercontent.com/WojciechMisiura/RRproject/main/bank.csv" 
@@ -117,37 +107,7 @@ bank_data <- bank
 
 ```{r}
 jobs <- c('management', 'blue-collar', 'technician', 'admin.', 'services', 
-          'retired', 'self-employed', 'student', 'unemployed', 'entrepreneur', 
-=======
-## Loading Necessary Libraries
-
-```{r setup, warning=FALSE, message=FALSE}
-# install.packages('caret')
-# install.packages('rpart.plot')
-
-library(tidyverse)       
-library(gridExtra)       
-library(cluster)         
-library(caret)           
-library(rpart)           
-library(rpart.plot)      
-library(ModelMetrics) 
-```
-
-## Reading and Initial Analysis of Banking Dataset
-
-```{r}
-# reading file
-file_path <- "C:/Users/PC/OneDrive/Desktop/falcony/RRproject2024/RRproject/bank.csv"
-
-bank <- read.csv(file_path)
-
-# initial analysis
-head(bank)
-
-sum(is.na(bank))
-
-summary(bank)
+          'retired', 'self-employed', 'student', 'unemployed', 'entrepreneur')
 ```
 
 ## Explatory Data Analysis
@@ -189,13 +149,10 @@ bank_data <- bank
 
 # Count of people who made a deposit by job category
 jobs <- c('management', 'blue-collar', 'technician', 'admin.', 'services',
-          'retired', 'self-employed', 'student', 'unemployed', 'entrepreneur',
->>>>>>> dbe50508f6d28778d5c49fd003ce381ed04d74ed
-          'housemaid', 'unknown')
+          'retired', 'self-employed', 'student', 'unemployed', 'entrepreneur','housemaid', 'unknown')
 
 for (j in jobs) {
   count <- sum(bank_data$deposit == "yes" & bank_data$job == j)
-<<<<<<< HEAD
   cat(sprintf("%-15s : %5d\n", j, count))}
 ```
 
