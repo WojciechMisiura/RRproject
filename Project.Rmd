@@ -37,7 +37,8 @@ packages_version <- c(
   "pROC" = "1.18.5",
   "corrplot" = "0.92",
   "RColorBrewer" = "1.1.3",
-  "tibble" = "3.2.1")
+  "tibble" = "3.2.1",
+  "rpart" = "4.1.23")
 
 check_and_install <- function(package, version) {
   if (!require(package, character.only = TRUE)) {
@@ -330,12 +331,12 @@ print(corr_deposit)
 set.seed(50) 
 
 label <- bankcl$deposit_cat
-data_drop_deposit <- bankcl[, !names(bankcl) %in% 'deposit_cat']
+data_drop_deposite <- bankcl[, !names(bankcl) %in% 'deposit_cat']
 
 index_train <- createDataPartition(label, p = 0.8, list = FALSE)
-data_train <- data_drop_deposit[index_train, ]
+data_train <- data_drop_deposite[index_train, ]
 label_train <- label[index_train]
-data_test <- data_drop_deposit[-index_train, ]
+data_test <- data_drop_deposite[-index_train, ]
 label_test <- label[-index_train]
 ```
 
@@ -349,22 +350,25 @@ train_and_evaluate <- function(depth) {
   test_accuracy <- sum(test_pred == label_test) / length(label_test)
 
   cat(sprintf("Depth %d: Training score: %f, Testing score: %f\n", depth, train_accuracy, test_accuracy))
+  return(c(train = train_accuracy, test = test_accuracy)) 
 }
 
-for (depth in c(1, 2, 3, 4, 6)) {
-  train_and_evaluate(depth)
-}
+
 ```
 
 #### Compare Training and Testing scores for various tree depths used
 
 ```{r}
 scores <- list()
-scores$`2` <- c(train = dt2_score_train, test = dt2_score_test)
-scores$`3` <- c(train = dt3_score_train, test = dt3_score_test)
-scores$`4` <- c(train = dt4_score_train, test = dt4_score_test)
-scores$`6` <- c(train = dt6_score_train, test = dt6_score_test)
-scores$max <- c(train = dt1_score_train, test = dt1_score_test)
+
+
+depth_levels <- c(1, 2, 3, 4, 6)
+names(depth_levels) <- c("max", "2", "3", "4", "6") 
+
+for (depth in depth_levels) {
+    result <- train_and_evaluate(depth)
+    scores[[as.character(depth)]] <- list(train = result[1], test = result[2])
+}
 
 cat(sprintf('%-10s %-20s %-20s\n', 'depth', 'Training score', 'Testing score'))
 cat(sprintf('%-10s %-20s %-20s\n', '-----', '--------------', '-------------'))
@@ -374,76 +378,89 @@ for (depth in c("2", "3", "4", "6", "max")) {
 ```
 
 ```{r}
-dt2 <- rpart(deposit_cat ~ ., data = bankcl, method = "class", control = rpart.control(maxdepth = 2))
+dt2 <- rpart(label_train ~ ., data = data_train, method = "class", control = rpart.control(maxdepth = 2))
 
-rpart.plot(dt2, main = "Decision Tree for Depth 2", extra = 106)  
-```
+fi <- dt2$variable.importance
 
-```{r}
-features <- colnames(data_drop_deposite)
-print(features)
-```
-
-```{r}
-dt2 <- rpart(deposit_cat ~ ., data = bankcl, method = "class",
-             control = rpart.control(maxdepth = 2, minsplit = 1, xval = 0, usesurrogate = 0))
-
-fi <- as.data.frame(varImp(dt2, scale = FALSE))
-names(fi) <- "Importance"
-fi$Feature <- rownames(fi)
-fi <- fi[order(-fi$Importance), ]
-```
-
-```{r}
-cat(sprintf("%-20s %s\n", "Feature", "Importance"))
-cat(sprintf("%-20s %s\n", "--------", "-----------"))
-for (i in 1:nrow(fi)) {
-  cat(sprintf("%-20s %.3f\n", fi$Feature[i], fi$Importance[i]))
+features <- names(fi)
+l <- length(features)
+for (i in 1:l) {
+  cat(sprintf('%-20s %3f\n', features[i], fi[i]))
 }
 ```
 
-## Predictions
+# Prediction
+
+
 
 ```{r}
 cat(sprintf("Mean duration   : %f\n", mean(data_drop_deposite$duration, na.rm = TRUE)))
 cat(sprintf("Maximum duration: %d\n", max(data_drop_deposite$duration, na.rm = TRUE)))
 cat(sprintf("Minimum duration: %d\n", min(data_drop_deposite$duration, na.rm = TRUE)))
-
 ```
 
 ```{r}
-sample_data1 <- as.data.frame(t(matrix(c(0, 0, 371, rep(0, 22), 1), nrow = 26)))
-colnames(sample_data1) <- features  
+new_data_371 <- data.frame(matrix(0, nrow = 1, ncol = length(names(data_drop_deposite))))
+names(new_data_371) <- names(data_drop_deposite)
+new_data_371$duration <- 371  # Set duration for prediction
 
-sample_data2 <- as.data.frame(t(matrix(c(0, 0, 3881, rep(0, 22), 1), nrow = 26)))
-colnames(sample_data2) <- features
+new_data_3881 <- data.frame(matrix(0, nrow = 1, ncol = length(names(data_drop_deposite))))
+names(new_data_3881) <- names(data_drop_deposite)
+new_data_3881$duration <- 3881  # Set duration for prediction
 
-predict_proba1 <- predict(dt2, sample_data1, type = "prob")
-predict_class1 <- predict(dt2, sample_data1, type = "class")
 
-predict_proba2 <- predict(dt2, sample_data2, type = "prob")
-predict_class2 <- predict(dt2, sample_data2, type = "class")
+probabilities_371 <- predict(dt2, new_data_371, type = "prob")
+probabilities_3881 <- predict(dt2, new_data_3881, type = "prob")
 
-print(predict_proba1)
-print(predict_class1)
-print(predict_proba2)
-print(predict_class2)
+class_371 <- predict(dt2, new_data_371, type = "class")
+class_3881 <- predict(dt2, new_data_3881, type = "class")
+
+cat("Probabilities with duration 371 sec:\n")
+print(probabilities_371)
+
+cat("Predicted class with duration 371 sec:\n")
+print(class_371)
+
+cat("Probabilities with duration 3881 sec:\n")
+print(probabilities_3881)
+
+cat("Predicted class with duration 3881 sec:\n")
+print(class_3881)
 ```
 
 ```{r}
-print(data_drop_deposite[986, ])  # R indexing starts at 1
+specific_row <- data_drop_deposite[986, ]
+```
+
+
+```{r}
+probability_prediction <- predict(dt2, specific_row, type = "prob")
+
+print(probability_prediction)
 ```
 
 ```{r}
 preds <- predict(dt2, data_test, type = "class")
 
-accuracy <- confusionMatrix(as.factor(preds), as.factor(label_test))
-cat(sprintf("\nAccuracy score: \n%f\n", accuracy$overall['Accuracy']))
+levels_set <- union(levels(factor(label_test)), levels(factor(preds)))
 
-probs <- predict(dt2, data_test, type = "prob")[,2] 
+preds_factor <- factor(preds, levels = levels_set)
+label_test_factor <- factor(label_test, levels = levels_set)
 
-auc <- roc(label_test, probs) 
-cat(sprintf("\nArea Under Curve: \n%f\n", auc$auc))
+accuracy_matrix <- confusionMatrix(preds_factor, label_test_factor)
+accuracy <- accuracy_matrix$overall['Accuracy']
+
+cat("\nAccuracy score: \n", accuracy)
+```
+
+```{r}
+probs <- predict(dt2, data_test, type = "prob")
+
+
+positive_probs <- probs[, 2]
+
+auc_value <- roc(label_test, positive_probs)$auc
+cat("\nArea Under Curve: \n", auc_value)
 ```
 
 ```{r}
@@ -453,21 +470,7 @@ cat(sprintf("\nArea Under Curve: \n%f\n", auc$auc))
 ```{r}
 
 ```
-=======
-  cat(sprintf("%15s : %5d\n", j, count))
-}
 
-# Different types of job categories and their counts
-table(bank_data$job)
-
-# Similar jobs into categories
-bank_data$job <- as.factor(bank_data$job)
-levels(bank_data$job)[levels(bank_data$job) %in% c('management', 'admin.')] <- 'white-collar'
-levels(bank_data$job)[levels(bank_data$job) %in% c('services', 'housemaid')] <- 'pink-collar'
-levels(bank_data$job)[levels(bank_data$job) %in% c('retired', 'student', 'unemployed', 'unknown')] <- 'other'
-
-# New value counts for job categories
-table(bank_data$job)
+```{r}
 
 ```
->>>>>>> dbe50508f6d28778d5c49fd003ce381ed04d74ed
