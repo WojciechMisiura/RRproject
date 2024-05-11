@@ -38,7 +38,9 @@ packages_version <- c(
   "corrplot" = "0.92",
   "RColorBrewer" = "1.1.3",
   "tibble" = "3.2.1",
-  "rpart" = "4.1.23")
+  "rpart" = "4.1.23",
+  'gbm' = '2.1.8'
+  )
 
 check_and_install <- function(package, version) {
   if (!require(package, character.only = TRUE)) {
@@ -500,8 +502,10 @@ auc_value <- roc(label_test, positive_probs)$auc
 cat("\nArea Under Curve: \n", auc_value)
 ```
 ## Gradient Boosting
-```{r}
 
+We employed the GBM model because of its proficiency in handling various types of data features and its robustness in predicting binary outcomes
+
+```{r}
 # Fit a Gradient Boosting model
 gbm_model <- gbm(deposit_cat ~ ., 
                  data = bank_with_dummies[index_train, ], 
@@ -531,7 +535,6 @@ gbm_accuracy <- sum(gbm_predictions == label_test) / length(label_test)
 cat(sprintf("GBM Model Accuracy: %f\n", gbm_accuracy))
 
 # Calculate the AUC
-library(pROC)
 gbm_roc <- roc(label_test, gbm_predictions_prob)
 cat(sprintf("Area Under Curve for GBM: %f\n", gbm_roc$auc))
 
