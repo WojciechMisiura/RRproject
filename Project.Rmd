@@ -22,6 +22,8 @@ Link to the project: <https://www.kaggle.com/code/shirantha/bank-marketing-data-
 
 The aim of this attempt is to
 
+Firstly we start with loading libaries. Loop verify whether package has been installed, if not package is installed before loading. Package versions are fixed to ensure that all features work exactly the same way.
+
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 #install.packages("remotes")
 #library(remotes)
@@ -51,7 +53,7 @@ check_and_install <- function(package, version) {
 mapply(check_and_install, names(packages_version), packages_version)
 ```
 
-
+Dataset will be loaded from github using 'remote' library to ensure that users do not have to change the path to their local path.
 
 ```{r}
 url<-"https://raw.githubusercontent.com/WojciechMisiura/RRproject/main/bank.csv" 
@@ -61,7 +63,6 @@ bank<-read_csv(url)
 
 ```{r}
 bank %>% summarize(across(everything(), ~sum(is.na(.))))
-
 ```
 
 <<<<<<< HEAD
@@ -311,19 +312,20 @@ corrplot(corr, method = "color", type = "upper", order = "hclust",
          cl.lim = c(-0.3, 0.3))
 ```
 
+
+
 ```{r}
-corr['deposit_cat']
-typeof(corr)
+# Extract the deposit_cat column (the dependent variable)
+corr_deposit <- as.data.frame(corr['deposit_cat', , drop = FALSE])
 
-corr_deposit <- as.data.frame(t(corr_row))
-names(corr_deposit) <- "deposit_cat"  
+# Remove the row corresponding to 'deposit_cat' itself if included
+corr_deposit <- corr_deposit[-which(rownames(corr_deposit) == 'deposit_cat'), ]
 
-corr_deposit$variable <- rownames(corr_deposit)
-rownames(corr_deposit) <- NULL 
+# Sort the remaining data frame in descending order based on the values in deposit_cat
+corr_deposit <- corr_deposit[order(corr_deposit$deposit_cat, decreasing = TRUE), ]
 
-corr_deposit <- arrange(corr_deposit, desc(deposit_cat))
-print(corr_deposit)
 ```
+
 
 > ## Build the Data Model
 
