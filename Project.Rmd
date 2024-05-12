@@ -510,16 +510,15 @@ We employed the GBM model because of its proficiency in handling various types o
 gbm_model <- gbm(deposit_cat ~ ., 
                  data = bank_with_dummies[index_train, ], 
                  distribution = "bernoulli", 
-                 n.trees = 100, 
+                 n.trees = 200, 
                  interaction.depth = 4,
                  shrinkage = 0.01,
                  cv.folds = 5, 
                  n.minobsinnode = 10,
                  verbose = TRUE)
 
-# Summary of the gbm model
-summary(gbm_model)
 
+summary(gbm_model)
 
 # Cross-validated error plot
 gbm.perf(gbm_model, method = "cv")
@@ -527,7 +526,7 @@ gbm.perf(gbm_model, method = "cv")
 # Make predictions on the test set
 gbm_predictions_prob <- predict(gbm_model, data_test, n.trees = gbm_model$n.trees, type = "response")
 
-# Convert probabilities to binary outcome based on a threshold (e.g., 0.5)
+# Convert probabilities to binary outcome 
 gbm_predictions <- ifelse(gbm_predictions_prob > 0.5, 1, 0)
 
 # Evaluate model accuracy
