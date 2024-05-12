@@ -529,14 +529,31 @@ gbm_predictions_prob <- predict(gbm_model, data_test, n.trees = gbm_model$n.tree
 # Convert probabilities to binary outcome 
 gbm_predictions <- ifelse(gbm_predictions_prob > 0.5, 1, 0)
 
-# Evaluate model accuracy
-gbm_accuracy <- sum(gbm_predictions == label_test) / length(label_test)
-cat(sprintf("GBM Model Accuracy: %f\n", gbm_accuracy))
+# Create a factor version of actual and predicted to use in confusion matrix
+actual <- factor(label_test, levels = c(0, 1))
+predicted <- factor(gbm_predictions, levels = c(0, 1))
+
+# Calculate the confusion matrix
+conf_matrix <- confusionMatrix(predicted, actual)
+conf_matrix
+
+# Model accuracy from the confusion matrix
+cat(sprintf("GBM Model Accuracy: %f\n", conf_matrix$overall['Accuracy']))
+
+# Precision, recall, and F1 score
+precision <- conf_matrix$byClass['Precision']
+recall <- conf_matrix$byClass['Recall']
+f1_score <- 2 * (precision * recall) / (precision + recall)
+
+cat(sprintf("Precision: %f\n", precision))
+cat(sprintf("Recall: %f\n", recall))
+cat(sprintf("F1 Score: %f\n", f1_score))
 
 # Calculate the AUC
-gbm_roc <- roc(label_test, gbm_predictions_prob)
-cat(sprintf("Area Under Curve for GBM: %f\n", gbm_roc$auc))
+roc_curve <- roc(actual, gbm_predictions_prob)
+auc_value <- auc(roc_curve)
 
+cat(sprintf("Area Under Curve (AUC): %f\n", auc_value))
 ```
 
 ```{r}
