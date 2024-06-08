@@ -7,13 +7,6 @@ output:
   html_document: default
 ---
 
-
-Reference link to kaggle <https://www.kaggle.com/code/shirantha/bank-marketing-data-a-decision-tree-approach>
-
-```{r}
-
-```
-
 ## Context
 
 As part of Reproducible Research course which is Mandatory course for 2nd year students of Data Science and Business Analytics, we are reproducing already existing project.
@@ -58,7 +51,80 @@ check_and_install <- function(package, version) {
 mapply(check_and_install, names(packages_version), packages_version)
 ```
 
-As kaggle project was created as part of challenge, it was downloaded directly from kaggle and then has been loaded from local path. We decided to go to original destination of dataaset and we download dataset straight from UCI Machine Learning Repository. To do that we used a combination of remote and utils package. Original dataset had already renamed 'deposit' column to 'y' as it is dependent variable. We decided to rename it to 'deposit' for consistency with cited code.
+As kaggle project was created as part of challenge, it was downloaded directly from kaggle and then has been loaded from local path. We decided to go to original destination of dataaset and we download dataset straight from UCI Machine Learning Repository. To do that we used a combination of remote and utils package. Original dataset had already renamed 'deposit' column to 'y' as it is dependent variable. We decided to rename it to 'deposit' for consistency with cited code. Please note that dataset used in kaggle used limited dataset to 11k observations, we use full dataset which consists of 45k observations.
+
+Below is official description of dataset:
+"Citation Request:
+  This dataset is public available for research. The details are described in [Moro et al., 2011]. 
+  Please include this citation if you plan to use this database:
+
+  [Moro et al., 2011] S. Moro, R. Laureano and P. Cortez. Using Data Mining for Bank Direct Marketing: An Application of the CRISP-DM Methodology. 
+  In P. Novais et al. (Eds.), Proceedings of the European Simulation and Modelling Conference - ESM'2011, pp. 117-121, Guimarães, Portugal, October, 2011. EUROSIS.
+
+  Available at: [pdf] http://hdl.handle.net/1822/14838
+                [bib] http://www3.dsi.uminho.pt/pcortez/bib/2011-esm-1.txt
+
+1. Title: Bank Marketing
+
+2. Sources
+   Created by: Paulo Cortez (Univ. Minho) and Sérgio Moro (ISCTE-IUL) @ 2012
+   
+3. Past Usage:
+
+  The full dataset was described and analyzed in:
+
+  S. Moro, R. Laureano and P. Cortez. Using Data Mining for Bank Direct Marketing: An Application of the CRISP-DM Methodology. 
+  In P. Novais et al. (Eds.), Proceedings of the European Simulation and Modelling Conference - ESM'2011, pp. 117-121, Guimarães, 
+  Portugal, October, 2011. EUROSIS.
+
+4. Relevant Information:
+
+   The data is related with direct marketing campaigns of a Portuguese banking institution. 
+   The marketing campaigns were based on phone calls. Often, more than one contact to the same client was required, 
+   in order to access if the product (bank term deposit) would be (or not) subscribed. 
+
+   There are two datasets: 
+      1) bank-full.csv with all examples, ordered by date (from May 2008 to November 2010).
+      2) bank.csv with 10% of the examples (4521), randomly selected from bank-full.csv.
+   The smallest dataset is provided to test more computationally demanding machine learning algorithms (e.g. SVM).
+
+   The classification goal is to predict if the client will subscribe a term deposit (variable y).
+
+5. Number of Instances: 45211 for bank-full.csv (4521 for bank.csv)
+
+6. Number of Attributes: 16 + output attribute.
+
+7. Attribute information:
+
+   For more information, read [Moro et al., 2011].
+
+   Input variables:
+   # bank client data:
+   1 - age (numeric)
+   2 - job : type of job (categorical: "admin.","unknown","unemployed","management","housemaid","entrepreneur","student",
+                                       "blue-collar","self-employed","retired","technician","services") 
+   3 - marital : marital status (categorical: "married","divorced","single"; note: "divorced" means divorced or widowed)
+   4 - education (categorical: "unknown","secondary","primary","tertiary")
+   5 - default: has credit in default? (binary: "yes","no")
+   6 - balance: average yearly balance, in euros (numeric) 
+   7 - housing: has housing loan? (binary: "yes","no")
+   8 - loan: has personal loan? (binary: "yes","no")
+   # related with the last contact of the current campaign:
+   9 - contact: contact communication type (categorical: "unknown","telephone","cellular") 
+  10 - day: last contact day of the month (numeric)
+  11 - month: last contact month of year (categorical: "jan", "feb", "mar", ..., "nov", "dec")
+  12 - duration: last contact duration, in seconds (numeric)
+   # other attributes:
+  13 - campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)
+  14 - pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric, -1 means client was not previously contacted)
+  15 - previous: number of contacts performed before this campaign and for this client (numeric)
+  16 - poutcome: outcome of the previous marketing campaign (categorical: "unknown","other","failure","success")
+
+  Output variable (desired target):
+  17 - y - has the client subscribed a term deposit? (binary: "yes","no")
+
+8. Missing Attribute Values: None
+"
 
 ```{r}
 zip_url <- "https://archive.ics.uci.edu/static/public/222/bank+marketing.zip"
@@ -165,7 +231,7 @@ for (j in jobs) {
   count <- sum(bank_data$deposit == "yes" & bank_data$job == j)
   cat(sprintf("%-15s : %5d\n", j, count))}
 ```
-
+Then we plot graphs to visualize Age distribution by Job for Deposits Marked as Yes. We clearly can see that Students represent the youngest group without any outliers.
 ```{r}
 bank_data_filtered <- bank_data %>% 
   filter(deposit == "yes")
@@ -201,7 +267,7 @@ bank_data$job[bank_data$job %in% c('retired', 'student', 'unemployed', 'unknown'
 
 ```
 
-Here is a brief visualization of job distribution.
+Here is a brief visualization of job distribution after grouping them.
 ```{r}
 table(bank_data$job)
 ```
@@ -231,13 +297,13 @@ bank_data <- select(bank_data, -contact)
 
 #### ------------------------------ default and housing and loan ------------------------------
 
+Then we changed categorical variables to integers which can be then furhter used in ml.
+
 ```{r}
-# Convert categorical variables to binary indicators
 bank_data$default_cat <- as.integer(bank_data$default == "yes")
 bank_data$housing_cat <- as.integer(bank_data$housing == "yes")
 bank_data$loan_cat <- as.integer(bank_data$loan == "yes")
 
-# Remove original categorical variables from the dataset
 bank_data <- select(bank_data, -c(default, housing, loan))
 ```
 
@@ -262,6 +328,7 @@ This code segment performs the following tasks:
  3. Replaces the values of -1 in the 'pdays' variable with 10000.
  4. Creates a new variable 'recent_pdays' which is the reciprocal of 'pdays' if 'pdays' is           greater than 0, otherwise it is set to 1.
  5. Removes the 'pdays' variable from the 'bank_data' dataset.
+ 
 ```{r}
 cat("Customers that have not been contacted before:", sum(bank_data$pdays == -1), "\n")
 cat("Maximum values on pdays:", max(bank_data$pdays), "\n")
