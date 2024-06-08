@@ -1,0 +1,1 @@
+Throughout our project we have used GPT 3.5/4.0/4.0_omega and Copilot for code errors resolving. Also we have used Stack Overflow to search for problem solving techniques, however we have not copied any code from the network.
