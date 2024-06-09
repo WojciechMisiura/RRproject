@@ -451,18 +451,7 @@ We then verified the balance of the dataset
 ```{r}
 table(bankcl$deposit_cat)
 ```
-As dataset is imbalanced, with 88% of observations representing yes value and only 12% representing no value, we balanced out datast using majority class technique. After applying it, we see that number of observation is equal for both outcomes.
-```{r}
-
-bankcl_no <- bankcl %>% filter(deposit_cat == 0)
-bankcl_yes <- bankcl %>% filter(deposit_cat == 1)
-
-bankcl_yes_over <- bankcl_yes %>% sample_n(nrow(bankcl_no), replace = TRUE)
-
-bankcl_balanced <- bind_rows(bankcl_no, bankcl_yes_over)
-
-table(bankcl_balanced$deposit_cat)
-```
+As dataset is imbalanced, with 88% of observations representing yes value and only 12% representing no value, we balanced out datast using majority class technique. After applying it, we see that number of observation is equal for both outcomes. We have balanced out only train data to not influence test data.
 
 ```{r}
 label <- bankcl$deposit_cat
@@ -470,8 +459,21 @@ label <- bankcl$deposit_cat
 data_drop_deposite <- bankcl[, !names(bankcl) %in% 'deposit_cat']
 
 index_train <- createDataPartition(label, p = 0.8, list = FALSE)
-data_train <- data_drop_deposite[index_train, ]
-label_train <- label[index_train]
+data_train$deposit_cat <- label_train
+
+data_train_no <- data_train %>% filter(deposit_cat == 0)
+data_train_yes <- data_train %>% filter(deposit_cat == 1)
+
+
+data_train_yes_over <- data_train_yes %>% sample_n(nrow(data_train_no), replace = TRUE)
+
+data_train_balanced <- bind_rows(data_train_no, data_train_yes_over)
+
+table(data_train_balanced$deposit_cat)
+
+label_train <- data_train_balanced$deposit_cat
+data_train <- data_train_balanced %>% select(-deposit_cat)
+
 
 data_test <- data_drop_deposite[-index_train, ]
 label_test <- label[-index_train]
