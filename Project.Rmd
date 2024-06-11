@@ -21,7 +21,7 @@ The aim of this project is to:
 
 Firstly we start with loading libaries. Loop verify whether package has been installed, if not package is installed before loading. Package versions are fixed to ensure that all features work exactly the same way.
 
-# Function to check and install packages
+## Function to check and install packages
 ```{r, message=FALSE, warning=FALSE, echo=FALSE}
 packages_version <- c(
   "readr" = "2.1.4", 
@@ -52,6 +52,7 @@ check_and_install <- function(package, version) {
 mapply(check_and_install, names(packages_version), packages_version)
 ```
 
+## Dataset Description
 As kaggle project was created as part of challenge, it was downloaded directly from kaggle and then has been loaded from local path. We decided to go to original destination of dataaset and we download dataset straight from UCI Machine Learning Repository. To do that we used a combination of remote and utils package. Original dataset had already renamed 'deposit' column to 'y' as it is dependent variable. We decided to rename it to 'deposit' for consistency with cited code. Please note that dataset used in kaggle used limited dataset to 11k observations, we use full dataset which consists of 45k observations.
 
 Below is official description of dataset:
@@ -126,7 +127,7 @@ Below is official description of dataset:
 
 8. Missing Attribute Values: None
 "
-
+## Dataset Preparation
 ```{r}
 zip_url <- "https://archive.ics.uci.edu/static/public/222/bank+marketing.zip"
 zip_file <- "bank.zip"
@@ -216,7 +217,7 @@ g_duration_dist
 ```
 
 
-## Convert Categorical Data
+## Converting Categorical Data
 
 To ensure that dataset is ready for modeling, categorical values should be converted into integer values. 
 
@@ -276,7 +277,7 @@ table(bank_data$job)
 
 #### ------------------------------ poutcome ------------------------------
 
-In dataset there are 4 types of answears - unknown, other, failure and success. As there is no difference between unknown and other for the model, we have a code to overwrite all other values to unknown.
+In the dataset there are 4 types of answers - unknown, other, failure and success. As there is no difference between unknown and other for the model, we have a code to overwrite all other values to unknown.
 
 ```{r}
 bank_data$poutcome <- as.character(bank_data$poutcome)
@@ -287,16 +288,16 @@ table(bank_data$poutcome)
 
 ```
 
-#### ------------------------------ contact ------------------------------
+#### contact 
 In original project, owner removed contact from the dataset.
 
 ```{r}
 bank_data <- select(bank_data, -contact)
 ```
 
-#### ------------------------------ default and housing and loan ------------------------------
+#### default and housing and loan 
 
-Then we changed categorical variables to integers which can be then furhter used in ml.
+Then we changed categorical variables to integers which can be then further used in ml.
 
 ```{r}
 bank_data$default_cat <- as.integer(bank_data$default == "yes")
@@ -306,7 +307,7 @@ bank_data$loan_cat <- as.integer(bank_data$loan == "yes")
 bank_data <- select(bank_data, -c(default, housing, loan))
 ```
 
-#### ------------------------------ month, day ------------------------------
+#### month, day 
 
 ```{r}
 bank_data <- select(bank_data, -c(month, day))
